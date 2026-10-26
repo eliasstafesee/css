@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ካስኬዲ - CSS | የጊዜ ሰሌዳ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#12294a;--steel:#2f5d9b;--mist:#eaf0f8;--paper:#f6f8fb;--ink:#14233b;--fire:#d9480f;--line:#d5deea;--muted:#5b6b84;--lab:230px;
+font-family:"Noto Sans Ethiopic","Nyala","Abyssinica SIL",system-ui,sans-serif;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);line-height:1.5}
+header{background:var(--navy);color:#fff;display:flex;align-items:center;padding:.65rem 1.25rem;gap:1rem}
+.brand{display:flex;align-items:center;gap:.7rem;font-weight:800}
+.hex{width:32px;height:36px;background:var(--fire);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:grid;place-items:center;font-size:.6rem}
+.nav{display:flex;gap:1rem;margin-left:1.5rem;margin-right:auto}
+.nav a{color:#c9d6ea;text-decoration:none;font-weight:600}
+.nav a:hover,.nav a[aria-current]{color:#fff}
+.nav a[aria-current]{border-bottom:2px solid var(--fire)}
+.user{display:flex;align-items:center;gap:.8rem;font-size:.9rem}
+button,select{font:inherit}
+button{cursor:pointer}
+button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--steel);outline-offset:2px}
+.ghost{background:none;border:1px solid #6f87ad;color:#fff;border-radius:4px;padding:.3rem .7rem}
+main{padding:1.25rem 1.5rem}
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-bottom:1rem}
+.tools h1{font-size:1.3rem;margin:0 .6rem 0 0;min-width:9ch}
+.btn{background:#fff;border:1.5px solid var(--steel);color:var(--steel);border-radius:4px;padding:.4rem .9rem;font-weight:600}
+.btn:hover{background:var(--mist)}
+select{border:1.5px solid var(--line);border-radius:4px;padding:.4rem .6rem;background:#fff;color:var(--ink);margin-left:auto;max-width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem 1rem;font-size:.82rem;color:var(--muted);margin-bottom:.8rem}
+.legend span::before{content:"";display:inline-block;width:14px;height:8px;border-radius:4px;background:var(--c);margin-right:.35rem}
+.scroll{overflow-x:auto;background:#fff;border:1px solid var(--line)}
+#grid{min-width:calc(var(--lab) + var(--n) * 30px)}
+#body{position:relative}
+.row{display:grid;grid-template-columns:var(--lab) 1fr;border-bottom:1px solid var(--line)}
+.lab{position:sticky;left:0;z-index:2;background:#fff;padding:.5rem .7rem;border-right:1px solid var(--line);min-width:0}
+.lab b{display:block;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lab small{color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hd .lab{background:var(--navy);color:#fff;font-weight:600}
+.days{display:grid;grid-template-columns:repeat(var(--n),1fr);background:var(--navy);color:#fff}
+.days span{text-align:center;padding:.5rem 0;font-size:.8rem;border-left:1px solid #34507a}
+.days span.we{background:#1d3a66}
+.tl{position:relative;height:56px;background-image:linear-gradient(to right,transparent calc(100% - 1px),var(--line) 0);background-size:calc(100% / var(--n)) 100%}
+.item{position:absolute;top:7px;height:44px}
+.who{display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:.8rem;height:26px}
+.rt .who{position:absolute;right:0}
+.av{width:24px;height:24px;border-radius:50%;object-fit:cover;background:var(--steel);color:#fff;display:inline-grid;place-items:center;font-size:.7rem;font-weight:800;flex:none}
+.bar{height:10px;border-radius:5px;margin-top:5px;background:var(--c);position:relative;overflow:hidden;min-width:6px}
+.bar b{position:absolute;inset:0 auto 0 0;background:rgba(0,0,0,.28)}
+.today{position:absolute;top:0;bottom:0;width:2px;background:var(--fire);opacity:.55;pointer-events:none;z-index:1}
+.msg{padding:1.2rem;color:var(--muted)}
+#toast{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);background:var(--navy);color:#fff;padding:.6rem 1.1rem;border-radius:4px;z-index:9}
+@media (max-width:700px){:root{--lab:150px}main{padding:1rem}select{margin-left:0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="hex" aria-hidden="true">CSS</div>ካስኬዲ - CSS</div>
+  <nav class="nav"><a href="index.html">ተግባሮች</a><a href="schedule.html" aria-current="page">የጊዜ ሰሌዳ</a><a href="members.html">አባላት</a></nav>
+  <div class="user"><span id="who"></span><button class="ghost" id="out">ውጣ</button></div>
+</header>
+<main>
+  <div class="tools">
+    <h1 id="mlabel"></h1>
+    <button class="btn" id="prev">‹ የለፈው ወር</button>
+    <button class="btn" id="now">ይህ ወር</button>
+    <button class="btn" id="next">ቀጣይ ወር ›</button>
+    <select id="strat" aria-label="ስትራቴጂ"><option value="">ሁሉም ስትራቴጂዎች</option></select>
+  </div>
+  <div class="legend">
+    <span style="--c:#7f9bc4">ታቅዷል</span><span style="--c:#e8a317">በሂደት ላይ</span><span style="--c:#d64545">ዘግይቷል</span><span style="--c:#2e9e5b">ተጠናቅቋል</span><span style="--c:#9aa3b2">ተሰርዟል</span>
+    <span style="--c:#555">ጠቆር ያለው ክፍል የተከናወነውን መቶኛ ያሳያል</span>
+  </div>
+  <div class="scroll"><div id="grid"></div></div>
+  <p class="muted" id="note"></p>
+</main>
+<div id="toast" role="status" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// Same values as in login.html (anon key only).
+const SUPABASE_URL = "https://lvelsirglwhenubbydva.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2ZWxzaXJnbHdoZW51YmJ5ZHZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NzMwMzksImV4cCI6MjEwODU0OTAzOX0.H6cmoy3kvH5awoLrq31jp30ehJFXSfgiD6abY6Zamgc";
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const ST = {"Scheduled":["ታቅዷል","#7f9bc4"],"In Progress":["በሂደት ላይ","#e8a317"],"Delayed":["ዘግይቷል","#d64545"],"Completed":["ተጠናቅቋል","#2e9e5b"],"Cancelled":["ተሰርዟል","#9aa3b2"]};
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = (x) => String(x).padStart(2, "0");
+const dn = (s) => { const [a, b, c] = s.split("-").map(Number); return Date.UTC(a, b - 1, c) / 864e5; };
+const now = new Date();
+let view = { y: now.getFullYear(), m: now.getMonth() }, tt;
+
+function toast(t) { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(tt); tt = setTimeout(() => el.hidden = true, 3500); }
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return location.replace("login.html");
+  const { data: m } = await sb.from("members").select("full_name").eq("user_id", session.user.id).maybeSingle();
+  if (!m) { await sb.auth.signOut(); return location.replace("login.html"); }
+  $("who").textContent = m.full_name;
+  const { data: s } = await sb.from("strategies").select("id,name").order("id");
+  $("strat").insertAdjacentHTML("beforeend", (s || []).map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join(""));
+  draw();
+})();
+
+$("out").onclick = async () => { await sb.auth.signOut(); location.replace("login.html"); };
+$("prev").onclick = () => { view.m--; if (view.m < 0) { view.m = 11; view.y--; } draw(); };
+$("next").onclick = () => { view.m++; if (view.m > 11) { view.m = 0; view.y++; } draw(); };
+$("now").onclick = () => { view = { y: now.getFullYear(), m: now.getMonth() }; draw(); };
+$("strat").onchange = draw;
+
+async function draw() {
+  const { y, m } = view, n = new Date(y, m + 1, 0).getDate();
+  const first = `${y}-${pad(m + 1)}-01`, last = `${y}-${pad(m + 1)}-${pad(n)}`;
+  $("mlabel").textContent = new Date(y, m, 1).toLocaleDateString("am-ET-u-ca-gregory", { month: "long", year: "numeric" });
+  const [t, c] = await Promise.all([
+    sb.from("tasks").select("id,name,start_date,duration_days,end_date,status,progress_pct,goals(name,strategy_id),members(full_name,photo_path)")
+      .lte("start_date", last).or(`end_date.gte.${first},end_date.is.null`).order("start_date"),
+    sb.from("tasks").select("id", { count: "exact", head: true }).is("start_date", null)]);
+  if (t.error) return toast("ተግባሮችን መጫን አልተቻለም።");
+
+  const f0 = dn(first), sel = $("strat").value;
+  const rows = t.data.map((r) => {
+    const sd = dn(r.start_date), ed = sd + Math.max(r.duration_days || 1, 1) - 1;
+    return { ...r, a: Math.max(sd, f0) - f0, b: Math.min(ed, f0 + n - 1) - f0 };
+  }).filter((r) => r.b >= r.a && (!sel || String(r.goals?.strategy_id) === sel))
+    .sort((x, y2) => (x.goals?.name || "").localeCompare(y2.goals?.name || "") || x.a - y2.a);
+
+  const urls = {}, paths = [...new Set(rows.map((r) => r.members?.photo_path).filter(Boolean))];
+  if (paths.length) {
+    const { data: u } = await sb.storage.from("photos").createSignedUrls(paths, 3600);
+    (u || []).forEach((x) => { if (x.signedUrl) urls[x.path] = x.signedUrl; });
+  }
+
+  const days = Array.from({ length: n }, (_, i) => {
+    const wd = new Date(y, m, i + 1).getDay();
+    return `<span class="${wd === 0 || wd === 6 ? "we" : ""}">${i + 1}</span>`;
+  }).join("");
+  const body = rows.map((r) => {
+    const [label, color] = ST[r.status], o = r.members, len = r.b - r.a + 1;
+    const av = o && urls[o.photo_path] ? `<img class="av" src="${esc(urls[o.photo_path])}" alt="">`
+      : `<span class="av" aria-hidden="true">${o ? esc([...o.full_name][0]) : "?"}</span>`;
+    const tip = `${r.name}\n${o ? o.full_name : "ባለቤት የለም"}\n${label} · ${Math.round(r.progress_pct)}%\n${r.start_date}${r.end_date ? " → " + r.end_date : ""}`;
+    return `<div class="row"><div class="lab"><b>${esc(r.name)}</b><small>${esc(r.goals?.name || "")}</small></div>` +
+      `<div class="tl"><div class="item${r.a / n > .6 ? " rt" : ""}" style="left:${(r.a / n) * 100}%;width:${(len / n) * 100}%" title="${esc(tip)}">` +
+      `<div class="who">${av}<span>${esc(o ? o.full_name : r.name)}</span></div>` +
+      `<div class="bar" style="--c:${color}"><b style="width:${r.progress_pct}%"></b></div></div></div></div>`;
+  }).join("");
+
+  const g = $("grid"); g.style.setProperty("--n", n);
+  const td = now.getFullYear() === y && now.getMonth() === m ? now.getDate() : 0;
+  g.innerHTML = `<div class="row hd"><div class="lab">ተግባር</div><div class="days">${days}</div></div>` +
+    `<div id="body">${body || `<p class="msg">በዚህ ወር የተያዘ ተግባር የለም።</p>`}` +
+    (td && body ? `<div class="today" style="left:calc(var(--lab) + (100% - var(--lab)) * ${(td - .5) / n})"></div>` : "") + `</div>`;
+  $("note").textContent = (c.count ? `${c.count} ተግባር የመነሻ ቀን ስለሌለው አልታየም። ቀኖች በግሪጎሪያን አቆጣጠር ናቸው።` : "ቀኖች በግሪጎሪያን አቆጣጠር ናቸው።");
+}
+</script>
+</body>
+</html>
