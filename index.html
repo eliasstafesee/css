@@ -16,6 +16,10 @@ body{margin:0;background:var(--paper);color:var(--ink);line-height:1.5}
 header{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:.65rem 1.25rem;gap:1rem}
 .brand{display:flex;align-items:center;gap:.7rem;font-weight:800}
 .hex{width:32px;height:36px;background:var(--fire);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:grid;place-items:center;font-size:.6rem}
+.nav{display:flex;gap:1rem;margin-left:1.5rem;margin-right:auto}
+.nav a{color:#c9d6ea;text-decoration:none;font-weight:600}
+.nav a:hover,.nav a[aria-current]{color:#fff}
+.nav a[aria-current]{border-bottom:2px solid var(--fire)}
 .user{display:flex;align-items:center;gap:.8rem;font-size:.9rem}
 button{font:inherit;cursor:pointer}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--steel);outline-offset:2px}
@@ -66,6 +70,7 @@ a{color:var(--steel)}
 <body>
 <header>
   <div class="brand"><div class="hex" aria-hidden="true">CSS</div>ካስኬዲ - CSS</div>
+  <nav class="nav"><a href="index.html" aria-current="page">ተግባሮች</a><a href="members.html">አባላት</a></nav>
   <div class="user"><span id="who"></span><button class="ghost" id="out">ውጣ</button></div>
 </header>
 <div class="layout">
