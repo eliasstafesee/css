@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ካስኬዲ - CSS | አባላት</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#12294a;--steel:#2f5d9b;--mist:#eaf0f8;--paper:#f6f8fb;--ink:#14233b;--fire:#d9480f;--line:#c5d0e0;--muted:#5b6b84;
+font-family:"Noto Sans Ethiopic","Nyala","Abyssinica SIL",system-ui,sans-serif;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);line-height:1.5}
+header{background:var(--navy);color:#fff;display:flex;align-items:center;padding:.65rem 1.25rem;gap:1rem}
+.brand{display:flex;align-items:center;gap:.7rem;font-weight:800}
+.hex{width:32px;height:36px;background:var(--fire);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:grid;place-items:center;font-size:.6rem}
+.nav{display:flex;gap:1rem;margin-left:1.5rem;margin-right:auto}
+.nav a{color:#c9d6ea;text-decoration:none;font-weight:600}
+.nav a:hover,.nav a[aria-current]{color:#fff}
+.nav a[aria-current]{border-bottom:2px solid var(--fire)}
+.user{display:flex;align-items:center;gap:.8rem;font-size:.9rem}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid var(--steel);outline-offset:2px}
+.ghost{background:none;border:1px solid #6f87ad;color:#fff;border-radius:4px;padding:.3rem .7rem}
+main{padding:1.25rem 1.5rem;max-width:1100px;margin:0 auto}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+h1{font-size:1.4rem;margin:0}
+.primary{background:var(--navy);color:#fff;border:0;border-radius:4px;padding:.6rem 1.2rem;font-weight:800}
+.primary:hover{background:var(--steel)}
+.mini{font-size:.8rem;border:1px solid var(--steel);background:#fff;color:var(--steel);border-radius:4px;padding:.15rem .55rem}
+.mini.danger{border-color:#b42318;color:#b42318}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:#fff;margin-top:1rem}
+th,td{text-align:left;padding:.55rem .7rem;border-bottom:1px solid var(--line);vertical-align:middle}
+th{background:var(--navy);color:#fff;font-weight:600;font-size:.85rem}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover{background:var(--mist)}
+.av{width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--steel);color:#fff;display:grid;place-items:center;font-weight:800}
+.pill{display:inline-block;padding:.1rem .6rem;border-radius:99px;font-size:.8rem;font-weight:600;background:var(--mist);color:var(--navy)}
+.pill.a{background:#fde9dc;color:#8a3a07}
+.muted{color:var(--muted)}
+#detail{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:#fff;border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(18,41,74,.15);padding:1.25rem;overflow-y:auto;z-index:5}
+#detail h2{margin:0;font-size:1.2rem}
+#detail h3{font-size:1rem;margin:1.4rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--line)}
+label{display:block;font-weight:600;font-size:.9rem;margin-top:.8rem}
+input,select{width:100%;font:inherit;padding:.5rem .6rem;border:1.5px solid var(--line);border-radius:4px;background:#fff;color:var(--ink);margin-top:.25rem}
+input:disabled,select:disabled{background:var(--paper);color:var(--muted)}
+.row{display:flex;gap:.6rem;margin-top:1.2rem}
+.note{font-size:.85rem;color:var(--muted);margin:.6rem 0 0}
+#toast{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);background:var(--navy);color:#fff;padding:.6rem 1.1rem;border-radius:4px;z-index:9}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="hex" aria-hidden="true">CSS</div>ካስኬዲ - CSS</div>
+  <nav class="nav"><a href="index.html">ተግባሮች</a><a href="members.html" aria-current="page">አባላት</a></nav>
+  <div class="user"><span id="who"></span><button class="ghost" id="out">ውጣ</button></div>
+</header>
+<main>
+  <div class="bar"><h1>አባላት</h1><button class="primary" id="add" hidden>+ አባል</button></div>
+  <div class="scroll"><table>
+    <thead><tr><th></th><th>ስም</th><th>ደረጃ</th><th>ዓይነት</th><th>ስልክ</th><th>ኢሜል</th><th>ሚና</th><th>መግቢያ</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+</main>
+<aside id="detail" hidden></aside>
+<div id="toast" role="status" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// Same values as in login.html (anon key only).
+const SUPABASE_URL = "https://lvelsirglwhenubbydva.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2ZWxzaXJnbHdoZW51YmJ5ZHZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NzMwMzksImV4cCI6MjEwODU0OTAzOX0.H6cmoy3kvH5awoLrq31jp30ehJFXSfgiD6abY6Zamgc";
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const ROLE = { admin: "አስተዳዳሪ", manager: "አመራር", member: "አባል" };
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let me, list = [], urls = {}, cur = null, tt;
+const isAdmin = () => me.role === "admin";
+
+function toast(t) { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(tt); tt = setTimeout(() => el.hidden = true, 3500); }
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return location.replace("login.html");
+  const { data: m } = await sb.from("members").select("*").eq("user_id", session.user.id).maybeSingle();
+  if (!m) { await sb.auth.signOut(); return location.replace("login.html"); }
+  me = m; $("who").textContent = m.full_name; $("add").hidden = !isAdmin();
+  await load();
+})();
+
+$("out").onclick = async () => { await sb.auth.signOut(); location.replace("login.html"); };
+
+async function load() {
+  const { data, error } = await sb.from("members").select("*").order("full_name");
+  if (error) return toast("አባላትን መጫን አልተቻለም።");
+  list = data; urls = {};
+  const paths = list.map((m) => m.photo_path).filter(Boolean);
+  if (paths.length) {
+    const { data: u } = await sb.storage.from("photos").createSignedUrls(paths, 3600);
+    (u || []).forEach((x) => { if (x.signedUrl) urls[x.path] = x.signedUrl; });
+  }
+  $("rows").innerHTML = list.map((m) => {
+    const av = urls[m.photo_path] ? `<img class="av" src="${esc(urls[m.photo_path])}" alt="">` : `<div class="av" aria-hidden="true">${esc([...m.full_name][0])}</div>`;
+    return `<tr class="${isAdmin() ? "click" : ""}" data-id="${m.id}"><td>${av}</td><td><strong>${esc(m.full_name)}</strong></td>` +
+      `<td>${esc(m.level || "—")}</td><td>${esc(m.member_type || "—")}</td><td>${esc(m.phone || "—")}</td><td>${esc(m.email || "—")}</td>` +
+      `<td><span class="pill ${m.role === "admin" ? "a" : ""}">${ROLE[m.role]}</span></td>` +
+      `<td>${m.user_id ? "አለው" : '<span class="muted">የለውም</span>'}</td></tr>`;
+  }).join("") || `<tr><td colspan="8" class="muted">አባል የለም።</td></tr>`;
+}
+
+$("rows").onclick = (e) => {
+  if (!isAdmin()) return;
+  const tr = e.target.closest("tr[data-id]"); if (tr) openForm(list.find((m) => m.id === Number(tr.dataset.id)));
+};
+$("add").onclick = () => openForm({ role: "member" });
+
+function openForm(m) {
+  cur = m;
+  const self = m.id === me.id;
+  const f = (id, label, type = "text") => `<label>${label}<input id="f-${id}" type="${type}" value="${esc(m[id])}"></label>`;
+  $("detail").hidden = false;
+  $("detail").innerHTML =
+    `<div class="bar"><h2>${m.id ? "አባል ማስተካከል" : "አዲስ አባል"}</h2><button class="mini" data-act="close">ዝጋ</button></div>` +
+    f("full_name", "ሙሉ ስም *") + f("level", "ደረጃ (ለምሳሌ ዳይሬክተር፣ ቡድን መሪ)") + f("member_type", "ዓይነት (ለምሳሌ ሰብሳቢ፣ አባል)") +
+    f("phone", "ስልክ", "tel") + f("email", "ኢሜል", "email") +
+    `<p class="note">ለመግባት ከፈለገ፣ በ Supabase Authentication ላይ በዚሁ ኢሜል መለያ ሲፈጠር ከአባልነቱ ጋር በራስ-ሰር ይያያዛል።</p>` +
+    `<label>ሚና<select id="f-role" ${self ? "disabled" : ""}>${Object.entries(ROLE).map(([k, v]) => `<option value="${k}" ${k === m.role ? "selected" : ""}>${v}</option>`).join("")}</select></label>` +
+    (self ? `<p class="note">የራስዎን ሚና መቀየር አይቻልም።</p>` : "") +
+    (m.id ? `<label>ፎቶ (እስከ 2 MB)<input type="file" id="photo" accept="image/*"></label>` : `<p class="note">ፎቶ ለመጫን መጀመሪያ አባሉን ያስቀምጡ።</p>`) +
+    `<div class="row"><button class="primary" data-act="save">አስቀምጥ</button>${m.id && !self ? `<button class="mini danger" data-act="del">ሰርዝ</button>` : ""}</div>`;
+}
+
+$("detail").onclick = async (e) => {
+  const act = e.target.closest("[data-act]")?.dataset.act; if (!act) return;
+  if (act === "close") $("detail").hidden = true;
+  if (act === "save") {
+    const v = (id) => $("f-" + id).value.trim();
+    if (!v("full_name")) return toast("ስም ያስገቡ።");
+    const row = { full_name: v("full_name"), level: v("level") || null, member_type: v("member_type") || null,
+      phone: v("phone") || null, email: v("email").toLowerCase() || null };
+    if (cur.id !== me.id) row.role = $("f-role").value;
+    const q = cur.id ? sb.from("members").update(row).eq("id", cur.id).select().single() : sb.from("members").insert(row).select().single();
+    const { data, error } = await q;
+    if (error) return toast(error.code === "23505" ? "ይህ ኢሜል ቀድሞ ተመዝግቧል።" : "ማስቀመጥ አልተቻለም፦ " + error.message);
+    toast("ተቀምጧል።"); await load(); openForm(data);
+  }
+  if (act === "del") {
+    if (!confirm("ይህ አባል ይሰረዝ? የተመደቡለት ተግባሮች ባለቤት አልባ ይሆናሉ። የመግቢያ መለያው በ Supabase ላይ ይቀራል።")) return;
+    const { error } = await sb.from("members").delete().eq("id", cur.id);
+    if (error) return toast("አልተቻለም፦ " + error.message);
+    $("detail").hidden = true; load();
+  }
+};
+
+$("detail").onchange = async (e) => {
+  if (e.target.id !== "photo" || !e.target.files[0]) return;
+  const file = e.target.files[0];
+  if (!file.type.startsWith("image/")) return toast("ምስል ፋይል ይምረጡ።");
+  if (file.size > 2 * 1024 * 1024) return toast("ፎቶው ከ2 MB መብለጥ የለበትም።");
+  const path = `${cur.id}/${Date.now()}_${file.name.replace(/[^\w.\-]+/g, "_")}`;
+  toast("በመጫን ላይ…");
+  const up = await sb.storage.from("photos").upload(path, file);
+  if (up.error) return toast("መጫን አልተቻለም፦ " + up.error.message);
+  const { data, error } = await sb.from("members").update({ photo_path: path }).eq("id", cur.id).select().single();
+  if (error) return toast("አልተቻለም፦ " + error.message);
+  if (cur.photo_path) await sb.storage.from("photos").remove([cur.photo_path]);
+  toast("ፎቶው ተጭኗል።"); await load(); openForm(data);
+};
+</script>
+</body>
+</html>
