@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ካስኬዲ - CSS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#12294a;--steel:#2f5d9b;--mist:#eaf0f8;--paper:#f6f8fb;--ink:#14233b;--fire:#d9480f;--line:#c5d0e0;--muted:#5b6b84;
+font-family:"Noto Sans Ethiopic","Nyala","Abyssinica SIL",system-ui,sans-serif;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+body{margin:0;background:var(--paper);color:var(--ink);line-height:1.5}
+header{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:.65rem 1.25rem;gap:1rem}
+.brand{display:flex;align-items:center;gap:.7rem;font-weight:800}
+.hex{width:32px;height:36px;background:var(--fire);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:grid;place-items:center;font-size:.6rem}
+.user{display:flex;align-items:center;gap:.8rem;font-size:.9rem}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--steel);outline-offset:2px}
+.ghost{background:none;border:1px solid #6f87ad;color:#fff;border-radius:4px;padding:.3rem .7rem}
+.layout{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 56px)}
+aside{background:#fff;border-right:1px solid var(--line);padding:1rem}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+.bar h2{margin:0;font-size:1rem}
+.mini{font-size:.8rem;border:1px solid var(--steel);background:#fff;color:var(--steel);border-radius:4px;padding:.15rem .55rem}
+.mini.danger{border-color:#b42318;color:#b42318}
+.s{margin-bottom:1rem}
+.sh{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.4rem .5rem;background:var(--mist);border-left:4px solid var(--fire)}
+.g{display:flex;justify-content:space-between;gap:.5rem;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:.55rem .5rem .55rem 1.2rem;color:var(--ink)}
+.g:hover{background:var(--paper)}
+.g.on{background:var(--navy);color:#fff}
+.g em{font-style:normal;font-weight:800}
+.muted{color:var(--muted)}
+main{padding:1.25rem 1.5rem;min-width:0}
+main h1{font-size:1.4rem;margin:0}
+table{width:100%;border-collapse:collapse;background:#fff;margin-top:1rem}
+th,td{text-align:left;padding:.6rem .7rem;border-bottom:1px solid var(--line);vertical-align:middle}
+th{background:var(--navy);color:#fff;font-weight:600;font-size:.85rem}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--mist)}
+.pill{display:inline-block;padding:.1rem .6rem;border-radius:99px;font-size:.8rem;font-weight:600;background:var(--mist);color:var(--navy)}
+.pill.d{background:#fde4e1;color:#8a1c0b}.pill.p{background:#fff1cf;color:#7a4e00}.pill.c{background:#dcf3e3;color:#14532d}.pill.x{background:#e6e8ec;color:#444}
+.prog{display:flex;align-items:center;gap:.5rem;min-width:110px}
+.prog i{flex:1;height:8px;background:#dfe6f1;border-radius:4px;overflow:hidden}
+.prog b{display:block;height:100%;background:var(--steel)}
+.scroll{overflow-x:auto}
+#detail{position:fixed;top:0;right:0;bottom:0;width:min(460px,100%);background:#fff;border-left:1px solid var(--line);box-shadow:-8px 0 24px rgba(18,41,74,.15);padding:1.25rem;overflow-y:auto;z-index:5}
+#detail h2{margin:0;font-size:1.2rem}
+#detail h3{font-size:1rem;margin:1.4rem 0 .5rem;padding-top:1rem;border-top:1px solid var(--line)}
+label{display:block;font-weight:600;font-size:.9rem;margin-top:.8rem}
+input,select,textarea{width:100%;font:inherit;padding:.5rem .6rem;border:1.5px solid var(--line);border-radius:4px;background:#fff;color:var(--ink);margin-top:.25rem}
+input:disabled,select:disabled,textarea:disabled{background:var(--paper);color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+.row{display:flex;gap:.6rem;margin-top:1.2rem}
+.primary{background:var(--navy);color:#fff;border:0;border-radius:4px;padding:.6rem 1.2rem;font-weight:800}
+.primary:hover{background:var(--steel)}
+ul.l{list-style:none;padding:0;margin:0}
+ul.l li{padding:.5rem 0;border-bottom:1px solid var(--line)}
+a{color:var(--steel)}
+#toast{position:fixed;left:50%;bottom:1.2rem;transform:translateX(-50%);background:var(--navy);color:#fff;padding:.6rem 1.1rem;border-radius:4px;z-index:9}
+@media (max-width:800px){.layout{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line)}main{padding:1rem}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="hex" aria-hidden="true">CSS</div>ካስኬዲ - CSS</div>
+  <div class="user"><span id="who"></span><button class="ghost" id="out">ውጣ</button></div>
+</header>
+<div class="layout">
+  <aside>
+    <div class="bar"><h2>ስትራቴጂና ግቦች</h2><button class="mini" id="add-s" hidden>+ ስትራቴጂ</button></div>
+    <div id="tree"></div>
+  </aside>
+  <main>
+    <div id="empty" class="muted">ከግራ በኩል ግብ ይምረጡ።</div>
+    <section id="goalview" hidden>
+      <div class="bar"><h1 id="gname"></h1><button class="primary" id="add-t" hidden>+ ተግባር</button></div>
+      <div class="scroll"><table>
+        <thead><tr><th>ተግባር</th><th>ባለቤት</th><th>ሁኔታ</th><th>ትግበራ</th><th>የሚያልቅበት</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </section>
+  </main>
+</div>
+<aside id="detail" hidden></aside>
+<div id="toast" role="status" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// Same values as in login.html (anon key only).
+const SUPABASE_URL = "https://lvelsirglwhenubbydva.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2ZWxzaXJnbHdoZW51YmJ5ZHZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NzMwMzksImV4cCI6MjEwODU0OTAzOX0.H6cmoy3kvH5awoLrq31jp30ehJFXSfgiD6abY6Zamgc";
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const ST = {"Scheduled":"ታቅዷል","In Progress":"በሂደት ላይ","Delayed":"ዘግይቷል","Completed":"ተጠናቅቋል","Cancelled":"ተሰርዟል"};
+const PILL = {"Scheduled":"","In Progress":"p","Delayed":"d","Completed":"c","Cancelled":"x"};
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let me, members = [], strategies = [], goals = [], progress = {}, goal = null, tasks = [], task = null, tt;
+const mgr = () => ["admin", "manager"].includes(me.role);
+const mname = (id) => (members.find((m) => m.id === id) || {}).full_name || "—";
+
+function toast(t) { const el = $("toast"); el.textContent = t; el.hidden = false; clearTimeout(tt); tt = setTimeout(() => el.hidden = true, 3500); }
+
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return location.replace("login.html");
+  const { data: m } = await sb.from("members").select("*").eq("user_id", session.user.id).maybeSingle();
+  if (!m) { await sb.auth.signOut(); return location.replace("login.html"); }
+  me = m; $("who").textContent = m.full_name;
+  $("add-s").hidden = !mgr(); $("add-t").hidden = !mgr();
+  await loadAll();
+})();
+
+$("out").onclick = async () => { await sb.auth.signOut(); location.replace("login.html"); };
+
+async function loadAll() {
+  const [s, g, p, mm] = await Promise.all([
+    sb.from("strategies").select("*").order("id"),
+    sb.from("goals").select("*").order("id"),
+    sb.from("goal_progress").select("goal_id,progress_pct"),
+    sb.from("members").select("id,full_name").order("full_name")]);
+  if (s.error || g.error) return toast("መረጃ መጫን አልተቻለም።");
+  strategies = s.data; goals = g.data; members = mm.data || [];
+  progress = Object.fromEntries((p.data || []).map((x) => [x.goal_id, x.progress_pct]));
+  renderTree();
+  if (goal) await openGoal(goal.id);
+}
+
+function renderTree() {
+  $("tree").innerHTML = strategies.map((s) =>
+    `<div class="s"><div class="sh"><strong>${esc(s.name)}</strong>${mgr() ? `<button class="mini" data-addgoal="${s.id}">+ ግብ</button>` : ""}</div>` +
+    goals.filter((g) => g.strategy_id === s.id).map((g) =>
+      `<button class="g${goal && goal.id === g.id ? " on" : ""}" data-goal="${g.id}"><span>${esc(g.name)}</span><em>${Math.round(progress[g.id] || 0)}%</em></button>`).join("") + `</div>`
+  ).join("") || `<p class="muted">ስትራቴጂ የለም።</p>`;
+}
+
+$("tree").onclick = async (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.goal) return openGoal(Number(b.dataset.goal));
+  if (b.dataset.addgoal) {
+    const name = (prompt("የግቡ ስም፦") || "").trim(); if (!name) return;
+    const { error } = await sb.from("goals").insert({ strategy_id: Number(b.dataset.addgoal), name });
+    return error ? toast("አልተቻለም፦ " + error.message) : loadAll();
+  }
+};
+$("add-s").onclick = async () => {
+  const name = (prompt("የስትራቴጂው ስም፦") || "").trim(); if (!name) return;
+  const { error } = await sb.from("strategies").insert({ name });
+  error ? toast("አልተቻለም፦ " + error.message) : loadAll();
+};
+
+async function openGoal(id) {
+  goal = goals.find((g) => g.id === id); if (!goal) return;
+  $("detail").hidden = true; renderTree();
+  const { data, error } = await sb.from("tasks").select("*").eq("goal_id", id).order("id");
+  if (error) return toast("ተግባሮችን መጫን አልተቻለም።");
+  tasks = data;
+  $("empty").hidden = true; $("goalview").hidden = false; $("gname").textContent = goal.name;
+  $("rows").innerHTML = tasks.map((t) =>
+    `<tr data-task="${t.id}"><td>${esc(t.name)}</td><td>${esc(mname(t.owner_id))}</td>` +
+    `<td><span class="pill ${PILL[t.status]}">${ST[t.status]}</span></td>` +
+    `<td><div class="prog"><i><b style="width:${t.progress_pct}%"></b></i>${Math.round(t.progress_pct)}%</div></td>` +
+    `<td>${esc(t.end_date || "—")}</td></tr>`).join("") ||
+    `<tr><td colspan="5" class="muted">በዚህ ግብ ስር ተግባር የለም።</td></tr>`;
+}
+$("rows").onclick = (e) => { const tr = e.target.closest("tr[data-task]"); if (tr) openTask(tasks.find((t) => t.id === Number(tr.dataset.task))); };
+$("add-t").onclick = () => openTask({ goal_id: goal.id, status: "Scheduled", progress_pct: 0 });
+
+function openTask(t) {
+  task = t;
+  const can = mgr() || t.owner_id === me.id, cd = can ? "" : "disabled", md = mgr() ? "" : "disabled";
+  const f = (id, label, type, dis, wide) => `<label>${label}<input id="f-${id}" type="${type}" value="${esc(t[id])}" ${dis}></label>`;
+  $("detail").hidden = false;
+  $("detail").innerHTML =
+    `<div class="bar"><h2>${t.id ? "የተግባር ዝርዝር" : "አዲስ ተግባር"}</h2><button class="mini" data-act="close">ዝጋ</button></div>` +
+    f("name", "ተግባር", "text", md) + f("job_type", "የሥራ ዓይነት", "text", md) +
+    `<label>ባለቤት<select id="f-owner" ${md}><option value="">—</option>${members.map((m) => `<option value="${m.id}" ${m.id === t.owner_id ? "selected" : ""}>${esc(m.full_name)}</option>`).join("")}</select></label>` +
+    `<div class="two">${f("start_date", "የመነሻ ቀን", "date", md)}${f("duration_days", "የቆይታ ቀናት", "number", md)}</div>` +
+    `<div class="two">${f("budget", "በጀት", "number", md)}${f("actual_cost", "ትክክለኛ ወጪ", "number", cd)}</div>` +
+    `<div class="two"><label>ሁኔታ<select id="f-status" ${cd}>${Object.entries(ST).map(([k, v]) => `<option value="${k}" ${k === t.status ? "selected" : ""}>${v}</option>`).join("")}</select></label>${f("progress_pct", "ትግበራ (%)", "number", cd)}</div>` +
+    `<label>ማስታወሻ<textarea id="f-notes" rows="3" ${cd}>${esc(t.notes)}</textarea></label>` +
+    `<div class="row">${can ? `<button class="primary" data-act="save">አስቀምጥ</button>` : ""}${t.id && mgr() ? `<button class="mini danger" data-act="del">ሰርዝ</button>` : ""}</div>` +
+    (t.id ? `<h3>የማስረጃ ዶክመንቶች</h3><ul class="l" id="docs"></ul><label>ፋይል ጨምር<input type="file" id="up"></label>` +
+      `<h3>ግብረ መልስ</h3><ul class="l" id="fb"></ul><label>አዲስ ግብረ መልስ<textarea id="fb-in" rows="2"></textarea></label><div class="row"><button class="primary" data-act="fb">ላክ</button></div>` : "");
+  if (t.id) extras();
+}
+
+async function extras() {
+  const [d, f] = await Promise.all([
+    sb.from("task_documents").select("*").eq("task_id", task.id).order("id"),
+    sb.from("task_feedback").select("*").eq("task_id", task.id).order("id")]);
+  $("docs").innerHTML = (d.data || []).map((x) =>
+    `<li><a href="#" data-dl="${esc(x.storage_path)}">${esc(x.file_name)}</a> <small class="muted">${x.added_at.slice(0, 10)}</small>` +
+    `${mgr() ? ` <button class="mini danger" data-deldoc="${x.id}" data-path="${esc(x.storage_path)}">ሰርዝ</button>` : ""}</li>`).join("") || `<li class="muted">ማስረጃ የለም።</li>`;
+  $("fb").innerHTML = (f.data || []).map((x) =>
+    `<li><small class="muted">${x.created_at.slice(0, 10)} · ${esc(x.author_name)}</small><br>${esc(x.body)}</li>`).join("") || `<li class="muted">ግብረ መልስ የለም።</li>`;
+}
+
+async function save() {
+  const v = (id) => $("f-" + id).value.trim(), n = (id) => v(id) === "" ? null : Number(v(id));
+  const p = n("progress_pct");
+  if (p !== null && (isNaN(p) || p < 0 || p > 100)) return toast("ትግበራ ከ0 እስከ 100 መሆን አለበት።");
+  const row = { actual_cost: n("actual_cost"), status: $("f-status").value, progress_pct: p ?? 0, notes: v("notes") || null };
+  if (mgr()) {
+    if (!v("name")) return toast("የተግባር ስም ያስገቡ።");
+    Object.assign(row, { name: v("name"), job_type: v("job_type") || null, owner_id: $("f-owner").value ? Number($("f-owner").value) : null,
+      budget: n("budget"), start_date: v("start_date") || null, duration_days: n("duration_days") });
+  }
+  const q = task.id ? sb.from("tasks").update(row).eq("id", task.id).select().single()
+                    : sb.from("tasks").insert({ ...row, goal_id: task.goal_id }).select().single();
+  const { data, error } = await q;
+  if (error) return toast("ማስቀመጥ አልተቻለም፦ " + error.message);
+  toast("ተቀምጧል።"); await loadAll(); openTask(data);
+}
+
+$("detail").onclick = async (e) => {
+  const b = e.target.closest("[data-act],[data-dl],[data-deldoc]"); if (!b) return;
+  if (b.dataset.dl) {
+    e.preventDefault(); const w = window.open("", "_blank");
+    const { data, error } = await sb.storage.from("evidence").createSignedUrl(b.dataset.dl, 60);
+    return error ? (w.close(), toast("ፋይሉን መክፈት አልተቻለም።")) : (w.location = data.signedUrl);
+  }
+  if (b.dataset.deldoc) {
+    if (!confirm("ይህ ማስረጃ ይሰረዝ?")) return;
+    await sb.storage.from("evidence").remove([b.dataset.path]);
+    await sb.from("task_documents").delete().eq("id", Number(b.dataset.deldoc)); return extras();
+  }
+  const act = b.dataset.act;
+  if (act === "close") $("detail").hidden = true;
+  if (act === "save") await save();
+  if (act === "del") {
+    if (!confirm("ተግባሩና ማስረጃዎቹ ይሰረዙ?")) return;
+    const { error } = await sb.from("tasks").delete().eq("id", task.id);
+    if (error) return toast("አልተቻለም፦ " + error.message);
+    $("detail").hidden = true; await loadAll();
+  }
+  if (act === "fb") {
+    const body = $("fb-in").value.trim(); if (!body) return;
+    const { error } = await sb.from("task_feedback").insert({ task_id: task.id, author_name: me.full_name, body });
+    if (error) return toast("አልተቻለም፦ " + error.message);
+    $("fb-in").value = ""; extras();
+  }
+};
+
+$("detail").onchange = async (e) => {
+  if (e.target.id !== "up" || !e.target.files[0]) return;
+  const file = e.target.files[0];
+  const path = `${task.id}/${Date.now()}_${file.name.replace(/[^\w.\-]+/g, "_")}`;
+  toast("በመጫን ላይ…");
+  const up = await sb.storage.from("evidence").upload(path, file);
+  if (up.error) return toast("መጫን አልተቻለም፦ " + up.error.message);
+  const ins = await sb.from("task_documents").insert({ task_id: task.id, file_name: file.name, storage_path: path, doc_type: file.type || null });
+  if (ins.error) return toast("አልተቻለም፦ " + ins.error.message);
+  e.target.value = ""; toast("ተጭኗል።"); extras();
+};
+</script>
+</body>
+</html>

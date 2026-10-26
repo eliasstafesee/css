@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ካስኬዲ - CSS | ግባ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#12294a; --steel:#2f5d9b; --mist:#eaf0f8; --paper:#f6f8fb; --ink:#14233b;
+  --fire:#d9480f; --line:#c5d0e0; --ok-bg:#fdecea; --ok-ink:#8a1c0b;
+  font-family:"Noto Sans Ethiopic","Nyala","Abyssinica SIL",system-ui,sans-serif;
+  box-sizing:border-box;
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}
+body{display:grid;grid-template-columns:minmax(300px,5fr) 6fr;background:var(--paper);color:var(--ink);line-height:1.6}
+
+.side{background:var(--navy);color:#fff;padding:3rem 3rem 3rem;display:flex;flex-direction:column;justify-content:space-between;gap:2rem}
+.mark{display:flex;align-items:center;gap:1rem}
+.hex{width:64px;height:72px;background:var(--fire);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);display:grid;place-items:center;font-weight:800;font-size:1.05rem;letter-spacing:.02em}
+.mark strong{font-size:1.6rem;font-weight:800}
+.cascade{display:grid;gap:.6rem}
+.cascade div{margin-left:calc(var(--i) * 2rem);padding:.7rem 1rem;background:var(--steel);border-left:4px solid var(--fire);font-weight:600}
+.cascade div:nth-child(2){background:#274f86}
+.cascade div:nth-child(3){background:#1e4170}
+.side p{margin:0;color:#c9d6ea;max-width:30ch}
+
+main{display:grid;place-items:center;padding:2rem}
+form{width:min(100%,380px)}
+h1{font-size:1.9rem;line-height:1.25;margin:0 0 .4rem;font-weight:800}
+.sub{margin:0 0 2rem;color:#4b5b74}
+label{display:block;font-weight:600;margin-bottom:.35rem}
+input{width:100%;font:inherit;padding:.75rem .9rem;border:1.5px solid var(--line);border-radius:4px;background:#fff;color:var(--ink);margin-bottom:1.25rem}
+input:focus-visible,button:focus-visible{outline:3px solid var(--steel);outline-offset:2px}
+button.go{width:100%;font:inherit;font-weight:800;padding:.85rem;border:0;border-radius:4px;background:var(--navy);color:#fff;cursor:pointer}
+button.go:hover{background:var(--steel)}
+button.go:disabled{opacity:.6;cursor:wait}
+button.link{font:inherit;background:none;border:0;padding:0;margin-top:1rem;color:var(--steel);text-decoration:underline;cursor:pointer}
+#msg{min-height:1.5rem;margin:0 0 1rem;padding:0;border-radius:4px}
+#msg.err{padding:.6rem .8rem;background:var(--ok-bg);color:var(--ok-ink)}
+#msg.info{padding:.6rem .8rem;background:var(--mist);color:var(--navy)}
+
+@media (max-width:760px){
+  body{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:auto;min-height:100%}
+  .side{padding:1.5rem}
+  .cascade,.side p{display:none}
+}
+</style>
+</head>
+<body>
+<aside class="side">
+  <div class="mark"><div class="hex" aria-hidden="true">CSS</div><strong>ካስኬዲ - CSS</strong></div>
+  <div class="cascade" aria-hidden="true">
+    <div style="--i:0">ስትራቴጂ</div>
+    <div style="--i:1">ግብ</div>
+    <div style="--i:2">ተግባር</div>
+  </div>
+  <p>ሥራን ከፋፍሎ መስጠት፣ መከታተል፣ መቆጣጠርና መለካት።</p>
+</aside>
+
+<main>
+  <form id="f" novalidate>
+    <h1>ወደ ካስኬዲ ይግቡ</h1>
+    <p class="sub">በተመዘገበው ኢሜልና የይለፍ ቃል ይግቡ።</p>
+    <div id="msg" role="alert" aria-live="polite"></div>
+
+    <label for="email">ኢሜል</label>
+    <input id="email" type="email" autocomplete="username" required>
+
+    <label for="pw">የይለፍ ቃል</label>
+    <input id="pw" type="password" autocomplete="current-password" required>
+
+    <button class="go" id="go" type="submit">ግባ</button>
+    <button class="link" id="forgot" type="button">የይለፍ ቃል ረስተዋል?</button>
+  </form>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// 1) Paste your project values (Supabase > Project Settings > API). Use the anon key, never the service_role key.
+const SUPABASE_URL = "https://lvelsirglwhenubbydva.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2ZWxzaXJnbHdoZW51YmJ5ZHZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NzMwMzksImV4cCI6MjEwODU0OTAzOX0.H6cmoy3kvH5awoLrq31jp30ehJFXSfgiD6abY6Zamgc";
+// 2) Page to open after a successful login.
+const HOME = "app.html";
+
+const $ = (id) => document.getElementById(id);
+const msg = $("msg"), go = $("go");
+const say = (text, kind) => { msg.textContent = text || ""; msg.className = text ? kind : ""; };
+
+const configured = !SUPABASE_URL.includes("YOUR-") && !SUPABASE_ANON_KEY.includes("YOUR-");
+const sb = configured ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+// Only people listed in the members table may enter.
+async function enter(user) {
+  const { data, error } = await sb.from("members").select("id").eq("user_id", user.id).maybeSingle();
+  if (error || !data) {
+    await sb.auth.signOut();
+    throw new Error("not-member");
+  }
+  location.replace(HOME);
+}
+
+if (!configured) {
+  say("የ Supabase ቅንብር አልገባም። በ login.html ውስጥ SUPABASE_URL እና SUPABASE_ANON_KEY ይሙሉ።", "err");
+  go.disabled = true;
+} else {
+  sb.auth.getSession().then(({ data }) => {
+    if (data.session) enter(data.session.user).catch(() => {});
+  });
+}
+
+$("f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!sb) return;
+  const email = $("email").value.trim(), password = $("pw").value;
+  if (!email || !password) return say("ኢሜልና የይለፍ ቃል ያስገቡ።", "err");
+  go.disabled = true; say("");
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    await enter(data.user);
+  } catch (err) {
+    if (err.message === "not-member") say("ይህ መለያ በአባላት ዝርዝር ውስጥ የለም። አስተዳዳሪውን ያነጋግሩ።", "err");
+    else if (err.status === 400) say("ኢሜል ወይም የይለፍ ቃል ትክክል አይደለም።", "err");
+    else say("መግባት አልተቻለም። ግንኙነትዎን አረጋግጠው እንደገና ይሞክሩ።", "err");
+    go.disabled = false;
+  }
+});
+
+$("forgot").addEventListener("click", async () => {
+  if (!sb) return;
+  const email = $("email").value.trim();
+  if (!email) return say("መጀመሪያ ኢሜልዎን ያስገቡ።", "err");
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.href });
+  say(error ? "አገናኙን መላክ አልተቻለም። እንደገና ይሞክሩ።" : "የይለፍ ቃል ማስተካከያ አገናኝ ወደ ኢሜልዎ ተልኳል።", error ? "err" : "info");
+});
+</script>
+</body>
+</html>
