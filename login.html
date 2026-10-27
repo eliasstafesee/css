@@ -79,10 +79,10 @@ button.link{font:inherit;background:none;border:0;padding:0;margin-top:1rem;colo
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
 <script>
-// 1) Paste your project values (Supabase > Project Settings > API). Use the anon key, never the service_role key.
-const SUPABASE_URL = "https://lvelsirglwhenubbydva.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2ZWxzaXJnbHdoZW51YmJ5ZHZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NzMwMzksImV4cCI6MjEwODU0OTAzOX0.H6cmoy3kvH5awoLrq31jp30ehJFXSfgiD6abY6Zamgc";
+// ቁልፎቹ በ config.js ውስጥ ናቸው።
+const { url: SUPABASE_URL, anonKey: SUPABASE_ANON_KEY } = CSS_CONFIG;
 // 2) Page to open after a successful login.
 const HOME = "index.html";
 
