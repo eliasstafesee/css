@@ -55,7 +55,7 @@ input:disabled,select:disabled{background:var(--paper);color:var(--muted)}
 <body>
 <header>
   <div class="brand"><div class="hex" aria-hidden="true">CSS</div>ካስኬዲ - CSS</div>
-  <nav class="nav"><a href="index.html">ተግባሮች</a><a href="schedule.html">የጊዜ ሰሌዳ</a><a href="members.html" aria-current="page">አባላት</a></nav>
+  <nav class="nav"><a href="index.html">ተግባሮች</a><a href="schedule.html">የጊዜ ሰሌዳ</a><a href="report.html">ሪፖርት</a><a href="members.html" aria-current="page">አባላት</a></nav>
   <div class="user"><span id="who"></span><button class="ghost" id="out">ውጣ</button></div>
 </header>
 <main>
@@ -69,6 +69,8 @@ input:disabled,select:disabled{background:var(--paper);color:var(--muted)}
 <div id="toast" role="status" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="ethcal.js"></script>
+<script src="notify.js"></script>
 <script>
 // Same values as in login.html (anon key only).
 const SUPABASE_URL = "https://lvelsirglwhenubbydva.supabase.co";
@@ -89,6 +91,7 @@ function toast(t) { const el = $("toast"); el.textContent = t; el.hidden = false
   const { data: m } = await sb.from("members").select("*").eq("user_id", session.user.id).maybeSingle();
   if (!m) { await sb.auth.signOut(); return location.replace("login.html"); }
   me = m; $("who").textContent = m.full_name; $("add").hidden = !isAdmin();
+  initBell(sb, me);
   await load();
 })();
 
