@@ -73,7 +73,7 @@ select{border:1.5px solid var(--line);border-radius:4px;padding:.4rem .6rem;back
   </div>
   <div class="legend">
     <span style="--c:#7f9bc4">ታቅዷል</span><span style="--c:#e8a317">በሂደት ላይ</span><span style="--c:#d64545">ዘግይቷል</span><span style="--c:#2e9e5b">ተጠናቅቋል</span><span style="--c:#9aa3b2">ተሰርዟል</span>
-    <span style="--c:#555">ጠቆር ያለው ክፍል የተከናወነውን መቶኛ ያሳያል</span>
+    <span style="--c:#555">ጠቆር ያለው ክፍል የሥራ አፈጻጸም መቶኛን ያሳያል</span>
   </div>
   <div class="scroll"><div id="grid"></div></div>
   <p class="muted" id="note"></p>
@@ -121,7 +121,7 @@ async function draw() {
   const first = EC.toISO(y, m, 1), last = EC.toISO(y, m, n);
   $("mlabel").textContent = `${EC.MONTHS[m - 1]} ${y}`;
   const [t, c] = await Promise.all([
-    sb.from("tasks").select("id,name,start_date,duration_days,end_date,status,progress_pct,goals(name,strategy_id),members(full_name,photo_path)")
+    sb.from("tasks").select("id,name,start_date,duration_days,end_date,status,progress_pct,work_pct,goals(name,strategy_id),members(full_name,photo_path)")
       .lte("start_date", last).or(`end_date.gte.${first},end_date.is.null`).order("start_date"),
     sb.from("tasks").select("id", { count: "exact", head: true }).is("start_date", null)]);
   if (t.error) return toast("ተግባሮችን መጫን አልተቻለም።");
@@ -147,11 +147,11 @@ async function draw() {
     const [label, color] = ST[r.status], o = r.members, len = r.b - r.a + 1;
     const av = o && urls[o.photo_path] ? `<img class="av" src="${esc(urls[o.photo_path])}" alt="">`
       : `<span class="av" aria-hidden="true">${o ? esc([...o.full_name][0]) : "?"}</span>`;
-    const tip = `${r.name}\n${o ? o.full_name : "ባለቤት የለም"}\n${label} · ${Math.round(r.progress_pct)}%\n${EC.fmt(r.start_date)}${r.end_date ? " → " + EC.fmt(r.end_date) : ""}`;
+    const tip = `${r.name}\n${o ? o.full_name : "ባለቤት የለም"}\n${label} · የሥራ አፈጻጸም ${Math.round(r.work_pct)}% · የወጪ ትግበራ ${Math.round(r.progress_pct)}%\n${EC.fmt(r.start_date)}${r.end_date ? " → " + EC.fmt(r.end_date) : ""}`;
     return `<div class="row"><div class="lab"><b>${esc(r.name)}</b><small>${esc(r.goals?.name || "")}</small></div>` +
       `<div class="tl"><div class="item${r.a / n > .6 ? " rt" : ""}" style="left:${(r.a / n) * 100}%;width:${(len / n) * 100}%" title="${esc(tip)}">` +
       `<div class="who">${av}<span>${esc(o ? o.full_name : r.name)}</span></div>` +
-      `<div class="bar" style="--c:${color}"><b style="width:${r.progress_pct}%"></b></div></div></div></div>`;
+      `<div class="bar" style="--c:${color}"><b style="width:${r.work_pct}%"></b></div></div></div></div>`;
   }).join("");
 
   const g = $("grid"); g.style.setProperty("--n", n);
