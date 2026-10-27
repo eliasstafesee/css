@@ -94,12 +94,12 @@ a{color:var(--steel)}
 <div id="toast" role="status" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
 <script src="ethcal.js"></script>
 <script src="notify.js"></script>
 <script>
-// Same values as in login.html (anon key only).
-const SUPABASE_URL = "https://lvelsirglwhenubbydva.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2ZWxzaXJnbHdoZW51YmJ5ZHZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5NzMwMzksImV4cCI6MjEwODU0OTAzOX0.H6cmoy3kvH5awoLrq31jp30ehJFXSfgiD6abY6Zamgc";
+// ቁልፎቹ በ config.js ውስጥ ናቸው።
+const { url: SUPABASE_URL, anonKey: SUPABASE_ANON_KEY } = CSS_CONFIG;
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const ST = {"Scheduled":"ታቅዷል","In Progress":"በሂደት ላይ","Delayed":"ዘግይቷል","Completed":"ተጠናቅቋል","Cancelled":"ተሰርዟል"};
