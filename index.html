@@ -36,6 +36,7 @@ aside{background:#fff;border-right:1px solid var(--line);padding:1rem}
 .g:hover{background:var(--paper)}
 .g.on{background:var(--navy);color:#fff}
 .g em{font-style:normal;font-weight:800}
+.sh em{font-style:normal;color:var(--fire);margin-left:.4rem}
 .muted{color:var(--muted)}
 main{padding:1.25rem 1.5rem;min-width:0}
 main h1{font-size:1.4rem;margin:0}
@@ -93,6 +94,8 @@ a{color:var(--steel)}
 <div id="toast" role="status" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="ethcal.js"></script>
+<script src="notify.js"></script>
 <script>
 // Same values as in login.html (anon key only).
 const SUPABASE_URL = "https://lvelsirglwhenubbydva.supabase.co";
@@ -116,7 +119,13 @@ function toast(t) { const el = $("toast"); el.textContent = t; el.hidden = false
   if (!m) { await sb.auth.signOut(); return location.replace("login.html"); }
   me = m; $("who").textContent = m.full_name;
   $("add-s").hidden = !mgr(); $("add-t").hidden = !mgr();
+  initBell(sb, me);
   await loadAll();
+  const want = Number(new URLSearchParams(location.search).get("task"));
+  if (want) {
+    const { data: t } = await sb.from("tasks").select("*").eq("id", want).maybeSingle();
+    if (t) { await openGoal(t.goal_id); openTask(t); }
+  }
 })();
 
 $("out").onclick = async () => { await sb.auth.signOut(); location.replace("login.html"); };
@@ -125,20 +134,26 @@ async function loadAll() {
   const [s, g, p, mm] = await Promise.all([
     sb.from("strategies").select("*").order("id"),
     sb.from("goals").select("*").order("id"),
-    sb.from("goal_progress").select("goal_id,progress_pct"),
+    sb.from("goal_progress").select("goal_id,tasks,progress_pct"),
     sb.from("members").select("id,full_name").order("full_name")]);
   if (s.error || g.error) return toast("መረጃ መጫን አልተቻለም።");
   strategies = s.data; goals = g.data; members = mm.data || [];
-  progress = Object.fromEntries((p.data || []).map((x) => [x.goal_id, x.progress_pct]));
+  progress = Object.fromEntries((p.data || []).map((x) => [x.goal_id, x]));
   renderTree();
   if (goal) await openGoal(goal.id);
 }
 
+// የስትራቴጂ አፈጻጸም % = በሥሩ ባሉ ሁሉም ተግባሮች አማካይ ትግበራ
+const sp = (sid) => {
+  let t = 0, s = 0;
+  goals.filter((g) => g.strategy_id === sid).forEach((g) => { const p = progress[g.id]; if (p) { t += p.tasks; s += p.progress_pct * p.tasks; } });
+  return t ? Math.round(s / t) : 0;
+};
 function renderTree() {
   $("tree").innerHTML = strategies.map((s) =>
-    `<div class="s"><div class="sh"><strong>${esc(s.name)}</strong>${mgr() ? `<button class="mini" data-addgoal="${s.id}">+ ግብ</button>` : ""}</div>` +
+    `<div class="s"><div class="sh"><strong>${esc(s.name)} <em>${sp(s.id)}%</em></strong>${mgr() ? `<button class="mini" data-addgoal="${s.id}">+ ግብ</button>` : ""}</div>` +
     goals.filter((g) => g.strategy_id === s.id).map((g) =>
-      `<button class="g${goal && goal.id === g.id ? " on" : ""}" data-goal="${g.id}"><span>${esc(g.name)}</span><em>${Math.round(progress[g.id] || 0)}%</em></button>`).join("") + `</div>`
+      `<button class="g${goal && goal.id === g.id ? " on" : ""}" data-goal="${g.id}"><span>${esc(g.name)}</span><em>${Math.round((progress[g.id] || {}).progress_pct || 0)}%</em></button>`).join("") + `</div>`
   ).join("") || `<p class="muted">ስትራቴጂ የለም።</p>`;
 }
 
@@ -168,7 +183,7 @@ async function openGoal(id) {
     `<tr data-task="${t.id}"><td>${esc(t.name)}</td><td>${esc(mname(t.owner_id))}</td>` +
     `<td><span class="pill ${PILL[t.status]}">${ST[t.status]}</span></td>` +
     `<td><div class="prog"><i><b style="width:${t.progress_pct}%"></b></i>${Math.round(t.progress_pct)}%</div></td>` +
-    `<td>${esc(t.end_date || "—")}</td></tr>`).join("") ||
+    `<td>${EC.fmt(t.end_date)}</td></tr>`).join("") ||
     `<tr><td colspan="5" class="muted">በዚህ ግብ ስር ተግባር የለም።</td></tr>`;
 }
 $("rows").onclick = (e) => { const tr = e.target.closest("tr[data-task]"); if (tr) openTask(tasks.find((t) => t.id === Number(tr.dataset.task))); };
@@ -183,13 +198,14 @@ function openTask(t) {
     `<div class="bar"><h2>${t.id ? "የተግባር ዝርዝር" : "አዲስ ተግባር"}</h2><button class="mini" data-act="close">ዝጋ</button></div>` +
     f("name", "ተግባር", "text", md) + f("job_type", "የሥራ ዓይነት", "text", md) +
     `<label>ባለቤት<select id="f-owner" ${md}><option value="">—</option>${members.map((m) => `<option value="${m.id}" ${m.id === t.owner_id ? "selected" : ""}>${esc(m.full_name)}</option>`).join("")}</select></label>` +
-    `<div class="two">${f("start_date", "የመነሻ ቀን", "date", md)}${f("duration_days", "የቆይታ ቀናት", "number", md)}</div>` +
+    `<div class="two"><label>የመነሻ ቀን (ቀን/ወር/ዓመተ ምሕረት)<input id="f-start_date" type="text" inputmode="numeric" placeholder="15/02/2019" value="${EC.fmt(t.start_date, "")}" ${md}></label>${f("duration_days", "የቆይታ ቀናት", "number", md)}</div>` +
+    (t.end_date ? `<small class="muted">የሚያልቅበት፦ ${EC.fmt(t.end_date)}</small>` : "") +
     `<div class="two">${f("budget", "በጀት", "number", md)}${f("actual_cost", "ትክክለኛ ወጪ", "number", cd)}</div>` +
-    `<div class="two"><label>ሁኔታ<select id="f-status" ${cd}>${Object.entries(ST).map(([k, v]) => `<option value="${k}" ${k === t.status ? "selected" : ""}>${v}</option>`).join("")}</select></label>${f("progress_pct", "ትግበራ (%)", "number", cd)}</div>` +
+    `<div class="two"><label>ሁኔታ<select id="f-status" ${cd}>${Object.entries(ST).map(([k, v]) => `<option value="${k}" ${k === t.status ? "selected" : ""}>${v}</option>`).join("")}</select></label><label>ትግበራ (ወጪ ÷ በጀት)<input type="text" value="${Math.round((t.progress_pct || 0) * 10) / 10}%" disabled></label></div>` +
     `<label>ማስታወሻ<textarea id="f-notes" rows="3" ${cd}>${esc(t.notes)}</textarea></label>` +
     `<div class="row">${can ? `<button class="primary" data-act="save">አስቀምጥ</button>` : ""}${t.id && mgr() ? `<button class="mini danger" data-act="del">ሰርዝ</button>` : ""}</div>` +
-    (t.id ? `<h3>የማስረጃ ዶክመንቶች</h3><ul class="l" id="docs"></ul><label>ፋይል ጨምር<input type="file" id="up"></label>` +
-      `<h3>ግብረ መልስ</h3><ul class="l" id="fb"></ul><label>አዲስ ግብረ መልስ<textarea id="fb-in" rows="2"></textarea></label><div class="row"><button class="primary" data-act="fb">ላክ</button></div>` : "");
+    (t.id ? `<h3>የማስረጃ ዶክመንቶች</h3><ul class="l" id="docs"></ul>${t.owner_id === me.id ? `<label>ፋይል ጨምር<input type="file" id="up"></label>` : `<p class="muted"><small>ማስረጃ መጫን የሚችለው የተግባሩ ባለቤት ብቻ ነው።</small></p>`}` +
+      `<h3>ግብረ መልስ</h3><ul class="l" id="fb"></ul>${mgr() ? `<label>አዲስ ግብረ መልስ <small class="muted">(ወዲያው ለተግባሩ ባለቤት ይላካል)</small><textarea id="fb-in" rows="2"></textarea></label><div class="row"><button class="primary" data-act="fb">ላክ</button></div>` : `<p class="muted"><small>ግብረ መልስ መስጠት የሚችሉት የበላይ ተቆጣጣሪዎች (አስተዳዳሪና አመራር) ብቻ ናቸው።</small></p>`}` : "");
   if (t.id) extras();
 }
 
@@ -198,21 +214,21 @@ async function extras() {
     sb.from("task_documents").select("*").eq("task_id", task.id).order("id"),
     sb.from("task_feedback").select("*").eq("task_id", task.id).order("id")]);
   $("docs").innerHTML = (d.data || []).map((x) =>
-    `<li><a href="#" data-dl="${esc(x.storage_path)}">${esc(x.file_name)}</a> <small class="muted">${x.added_at.slice(0, 10)}</small>` +
+    `<li><a href="#" data-dl="${esc(x.storage_path)}">${esc(x.file_name)}</a> <small class="muted">${EC.fmtTs(x.added_at)}</small>` +
     `${mgr() ? ` <button class="mini danger" data-deldoc="${x.id}" data-path="${esc(x.storage_path)}">ሰርዝ</button>` : ""}</li>`).join("") || `<li class="muted">ማስረጃ የለም።</li>`;
   $("fb").innerHTML = (f.data || []).map((x) =>
-    `<li><small class="muted">${x.created_at.slice(0, 10)} · ${esc(x.author_name)}</small><br>${esc(x.body)}</li>`).join("") || `<li class="muted">ግብረ መልስ የለም።</li>`;
+    `<li><small class="muted">${EC.fmtTs(x.created_at)} · ${esc(x.author_name)}</small><br>${esc(x.body)}</li>`).join("") || `<li class="muted">ግብረ መልስ የለም።</li>`;
 }
 
 async function save() {
   const v = (id) => $("f-" + id).value.trim(), n = (id) => v(id) === "" ? null : Number(v(id));
-  const p = n("progress_pct");
-  if (p !== null && (isNaN(p) || p < 0 || p > 100)) return toast("ትግበራ ከ0 እስከ 100 መሆን አለበት።");
-  const row = { actual_cost: n("actual_cost"), status: $("f-status").value, progress_pct: p ?? 0, notes: v("notes") || null };
+  const row = { actual_cost: n("actual_cost"), status: $("f-status").value, notes: v("notes") || null };
   if (mgr()) {
     if (!v("name")) return toast("የተግባር ስም ያስገቡ።");
+    const sd = v("start_date") ? EC.parse(v("start_date")) : null;
+    if (v("start_date") && !sd) return toast("ቀኑ ትክክል አይደለም፤ ቀን/ወር/ዓመት (ለምሳሌ 15/02/2019) ያስገቡ።");
     Object.assign(row, { name: v("name"), job_type: v("job_type") || null, owner_id: $("f-owner").value ? Number($("f-owner").value) : null,
-      budget: n("budget"), start_date: v("start_date") || null, duration_days: n("duration_days") });
+      budget: n("budget"), start_date: sd, duration_days: n("duration_days") });
   }
   const q = task.id ? sb.from("tasks").update(row).eq("id", task.id).select().single()
                     : sb.from("tasks").insert({ ...row, goal_id: task.goal_id }).select().single();
