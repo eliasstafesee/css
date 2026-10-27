@@ -88,7 +88,7 @@ const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const num = (x) => Number(x || 0), money = (x) => num(x).toLocaleString("en-US", { maximumFractionDigits: 0 });
 const bar = (p) => `<div class="prog"><i><b style="width:${p}%"></b></i>${Math.round(p)}%</div>`;
-const avg = (a) => (a.length ? a.reduce((s, t) => s + num(t.progress_pct), 0) / a.length : 0);
+const avg = (a, k = "progress_pct") => (a.length ? a.reduce((s, t) => s + num(t[k]), 0) / a.length : 0);
 const pill = (s) => `<span class="pill" style="--c:${ST[s][1]}">${ST[s][0]}</span>`;
 let strategies = [], goals = [], tasks = [], tt;
 
@@ -103,7 +103,7 @@ function toast(t) { const el = $("toast"); el.textContent = t; el.hidden = false
   const [s, g, t] = await Promise.all([
     sb.from("strategies").select("id,name").order("id"),
     sb.from("goals").select("id,name,strategy_id").order("id"),
-    sb.from("tasks").select("id,name,status,progress_pct,budget,actual_cost,end_date,goal_id,members(full_name)").order("id")]);
+    sb.from("tasks").select("id,name,status,progress_pct,work_pct,budget,actual_cost,end_date,goal_id,members(full_name)").order("id")]);
   if (s.error || g.error || t.error) return toast("መረጃ መጫን አልተቻለም።");
   strategies = s.data; goals = g.data; tasks = t.data;
   $("ss").insertAdjacentHTML("beforeend", strategies.map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join(""));
@@ -134,22 +134,22 @@ function render() {
   const groups = ss
     ? goals.filter((g) => gids.has(g.id)).map((g) => ({ n: g.name, r: rows.filter((t) => t.goal_id === g.id) }))
     : strategies.map((s) => ({ n: s.name, r: rows.filter((t) => (goals.find((g) => g.id === t.goal_id) || {}).strategy_id === s.id) }));
-  const taskRow = (t) => `<tr><td>${esc(t.name)}</td><td>${esc(gname(t.goal_id))}</td><td>${esc(t.members?.full_name || "—")}</td><td>${pill(t.status)}</td><td>${bar(num(t.progress_pct))}</td><td class="n">${money(t.budget)}</td><td class="n">${money(t.actual_cost)}</td><td>${EC.fmt(t.end_date)}</td></tr>`;
+  const taskRow = (t) => `<tr><td>${esc(t.name)}</td><td>${esc(gname(t.goal_id))}</td><td>${esc(t.members?.full_name || "—")}</td><td>${pill(t.status)}</td><td>${bar(num(t.progress_pct))}</td><td>${bar(num(t.work_pct))}</td><td class="n">${money(t.budget)}</td><td class="n">${money(t.actual_cost)}</td><td>${EC.fmt(t.end_date)}</td></tr>`;
 
   $("rep").innerHTML =
-    `<div class="cards"><div><b>${rows.length}</b><span>ተግባሮች</span></div><div><b>${Math.round(avg(rows))}%</b><span>አማካይ ትግበራ</span></div>` +
+    `<div class="cards"><div><b>${rows.length}</b><span>ተግባሮች</span></div><div><b>${Math.round(avg(rows))}%</b><span>አማካይ ትግበራ (ወጪ)</span></div><div><b>${Math.round(avg(rows, "work_pct"))}%</b><span>አማካይ የሥራ አፈጻጸም</span></div>` +
     `<div><b>${cnt.Completed || 0}</b><span>የተጠናቀቁ</span></div><div class="${late.length ? "warn" : ""}"><b>${late.length}</b><span>ትኩረት የሚሹ</span></div>` +
     `<div><b>${money(bud)}</b><span>ጠቅላላ በጀት (ብር)</span></div><div><b>${money(cost)}</b><span>ጠቅላላ ወጪ (ብር) · ${bud ? Math.round(cost / bud * 100) : 0}%</span></div></div>` +
     `<h2>የተግባሮች ሁኔታ</h2><div class="stack" role="img" aria-label="የተግባሮች ሁኔታ ስርጭት">${Object.keys(ST).filter((k) => cnt[k]).map((k) => `<i style="flex:${cnt[k]};background:${ST[k][1]}"></i>`).join("")}</div>` +
     `<div class="legend">${Object.keys(ST).map((k) => `<span style="--c:${ST[k][1]}">${ST[k][0]}፦ ${cnt[k] || 0}</span>`).join("")}</div>` +
-    `<h2>${ss ? "በግብ" : "በስትራቴጂ"}</h2><div class="scroll"><table><thead><tr><th>${ss ? "ግብ" : "ስትራቴጂ"}</th><th>ተግባሮች</th><th>የተጠናቀቁ</th><th>ትግበራ</th><th>በጀት</th><th>ወጪ</th></tr></thead><tbody>` +
-    groups.map((g) => `<tr><td><strong>${esc(g.n)}</strong></td><td class="n">${g.r.length}</td><td class="n">${g.r.filter((t) => t.status === "Completed").length}</td><td>${bar(avg(g.r))}</td><td class="n">${money(g.r.reduce((s, t) => s + num(t.budget), 0))}</td><td class="n">${money(g.r.reduce((s, t) => s + num(t.actual_cost), 0))}</td></tr>`).join("") +
+    `<h2>${ss ? "በግብ" : "በስትራቴጂ"}</h2><div class="scroll"><table><thead><tr><th>${ss ? "ግብ" : "ስትራቴጂ"}</th><th>ተግባሮች</th><th>የተጠናቀቁ</th><th>ትግበራ (ወጪ)</th><th>የሥራ አፈጻጸም</th><th>በጀት</th><th>ወጪ</th></tr></thead><tbody>` +
+    groups.map((g) => `<tr><td><strong>${esc(g.n)}</strong></td><td class="n">${g.r.length}</td><td class="n">${g.r.filter((t) => t.status === "Completed").length}</td><td>${bar(avg(g.r))}</td><td>${bar(avg(g.r, "work_pct"))}</td><td class="n">${money(g.r.reduce((s, t) => s + num(t.budget), 0))}</td><td class="n">${money(g.r.reduce((s, t) => s + num(t.actual_cost), 0))}</td></tr>`).join("") +
     `</tbody></table></div>` +
     `<h2>ትኩረት የሚሹ ተግባሮች (የዘገዩ ወይም ጊዜያቸው ያለፈ)</h2>` +
     (late.length ? `<div class="scroll"><table><thead><tr><th>ተግባር</th><th>ባለቤት</th><th>ሁኔታ</th><th>የሚያልቅበት</th><th>ትግበራ</th></tr></thead><tbody>` +
       late.map((t) => `<tr><td>${esc(t.name)}</td><td>${esc(t.members?.full_name || "—")}</td><td>${pill(t.status)}</td><td>${EC.fmt(t.end_date)}</td><td>${bar(num(t.progress_pct))}</td></tr>`).join("") + `</tbody></table></div>`
       : `<p class="muted">ትኩረት የሚሻ ተግባር የለም።</p>`) +
-    `<h2>ሁሉም ተግባሮች</h2><div class="scroll"><table><thead><tr><th>ተግባር</th><th>ግብ</th><th>ባለቤት</th><th>ሁኔታ</th><th>ትግበራ</th><th>በጀት</th><th>ወጪ</th><th>የሚያልቅበት</th></tr></thead><tbody>${rows.map(taskRow).join("")}</tbody></table></div>`;
+    `<h2>ሁሉም ተግባሮች</h2><div class="scroll"><table><thead><tr><th>ተግባር</th><th>ግብ</th><th>ባለቤት</th><th>ሁኔታ</th><th>ትግበራ (ወጪ)</th><th>የሥራ አፈጻጸም</th><th>በጀት</th><th>ወጪ</th><th>የሚያልቅበት</th></tr></thead><tbody>${rows.map(taskRow).join("")}</tbody></table></div>`;
 }
 </script>
 </body>
