@@ -84,7 +84,7 @@ a{color:var(--steel)}
     <section id="goalview" hidden>
       <div class="bar"><h1 id="gname"></h1><button class="primary" id="add-t" hidden>+ ተግባር</button></div>
       <div class="scroll"><table>
-        <thead><tr><th>ተግባር</th><th>ባለቤት</th><th>ሁኔታ</th><th>ትግበራ (ወጪ)</th><th>የሥራ አፈጻጸም</th><th>የሚያልቅበት</th></tr></thead>
+        <thead><tr><th>ተግባር</th><th>ባለቤት</th><th>ሁኔታ</th><th>ትግበራ</th><th>የሚያልቅበት</th></tr></thead>
         <tbody id="rows"></tbody>
       </table></div>
     </section>
@@ -183,8 +183,8 @@ async function openGoal(id) {
     `<tr data-task="${t.id}"><td>${esc(t.name)}</td><td>${esc(mname(t.owner_id))}</td>` +
     `<td><span class="pill ${PILL[t.status]}">${ST[t.status]}</span></td>` +
     `<td><div class="prog"><i><b style="width:${t.progress_pct}%"></b></i>${Math.round(t.progress_pct)}%</div></td>` +
-    `<td><div class="prog"><i><b style="width:${t.work_pct}%"></b></i>${Math.round(t.work_pct)}%</div></td><td>${EC.fmt(t.end_date)}</td></tr>`).join("") ||
-    `<tr><td colspan="6" class="muted">በዚህ ግብ ስር ተግባር የለም።</td></tr>`;
+    `<td>${EC.fmt(t.end_date)}</td></tr>`).join("") ||
+    `<tr><td colspan="5" class="muted">በዚህ ግብ ስር ተግባር የለም።</td></tr>`;
 }
 $("rows").onclick = (e) => { const tr = e.target.closest("tr[data-task]"); if (tr) openTask(tasks.find((t) => t.id === Number(tr.dataset.task))); };
 $("add-t").onclick = () => openTask({ goal_id: goal.id, status: "Scheduled", progress_pct: 0 });
@@ -200,8 +200,8 @@ function openTask(t) {
     `<label>ባለቤት<select id="f-owner" ${md}><option value="">—</option>${members.map((m) => `<option value="${m.id}" ${m.id === t.owner_id ? "selected" : ""}>${esc(m.full_name)}</option>`).join("")}</select></label>` +
     `<div class="two"><label>የመነሻ ቀን (ቀን/ወር/ዓመተ ምሕረት)<input id="f-start_date" type="text" inputmode="numeric" placeholder="15/02/2019" value="${EC.fmt(t.start_date, "")}" ${md}></label>${f("duration_days", "የቆይታ ቀናት", "number", md)}</div>` +
     (t.end_date ? `<small class="muted">የሚያልቅበት፦ ${EC.fmt(t.end_date)}</small>` : "") +
-    `<div class="two">${f("budget", "በጀት", "number", md)}${f("actual_cost", "ትክክለኛ ወጪ", "number", cd)}</div>` +
-    `<div class="two"><label>ሁኔታ<select id="f-status" ${cd}>${Object.entries(ST).map(([k, v]) => `<option value="${k}" ${k === t.status ? "selected" : ""}>${v}</option>`).join("")}</select></label><label>ትግበራ (ወጪ ÷ በጀት)<input type="text" value="${Math.round((t.progress_pct || 0) * 10) / 10}%" disabled></label></div>` + f("work_pct", "የሥራ አፈጻጸም (%) — በእጅ የሚገባ", "number", cd) +
+    `<div class="two">${f("budget", "በጀት", "number", md)}${f("actual_cost", "ትክክለኛ ወጪ", "number", md)}</div>` +
+    `<div class="two"><label>ሁኔታ<select id="f-status" ${md}>${Object.entries(ST).map(([k, v]) => `<option value="${k}" ${k === t.status ? "selected" : ""}>${v}</option>`).join("")}</select></label><label>ትግበራ (ወጪ ÷ በጀት)<input type="text" value="${Math.round((t.progress_pct || 0) * 10) / 10}%" disabled></label></div>` + (mgr() ? "" : `<p class="muted"><small>ሁኔታንና ወጪን የሚገመግሙት አስተዳዳሪና አመራር ናቸው፤ እርስዎ ማስረጃ ይጫኑ።</small></p>`) +
     `<label>ማስታወሻ<textarea id="f-notes" rows="3" ${cd}>${esc(t.notes)}</textarea></label>` +
     `<div class="row">${can ? `<button class="primary" data-act="save">አስቀምጥ</button>` : ""}${t.id && mgr() ? `<button class="mini danger" data-act="del">ሰርዝ</button>` : ""}</div>` +
     (t.id ? `<h3>የማስረጃ ዶክመንቶች</h3><ul class="l" id="docs"></ul>${t.owner_id === me.id ? `<label>ፋይል ጨምር<input type="file" id="up"></label>` : `<p class="muted"><small>ማስረጃ መጫን የሚችለው የተግባሩ ባለቤት ብቻ ነው።</small></p>`}` +
@@ -222,15 +222,14 @@ async function extras() {
 
 async function save() {
   const v = (id) => $("f-" + id).value.trim(), n = (id) => v(id) === "" ? null : Number(v(id));
-  const w = n("work_pct");
-  if (w !== null && (isNaN(w) || w < 0 || w > 100)) return toast("የሥራ አፈጻጸም ከ0 እስከ 100 መሆን አለበት።");
-  const row = { actual_cost: n("actual_cost"), status: $("f-status").value, work_pct: w ?? 0, notes: v("notes") || null };
+  const row = { notes: v("notes") || null };
   if (mgr()) {
     if (!v("name")) return toast("የተግባር ስም ያስገቡ።");
     const sd = v("start_date") ? EC.parse(v("start_date")) : null;
     if (v("start_date") && !sd) return toast("ቀኑ ትክክል አይደለም፤ ቀን/ወር/ዓመት (ለምሳሌ 15/02/2019) ያስገቡ።");
     Object.assign(row, { name: v("name"), job_type: v("job_type") || null, owner_id: $("f-owner").value ? Number($("f-owner").value) : null,
-      budget: n("budget"), start_date: sd, duration_days: n("duration_days") });
+      budget: n("budget"), start_date: sd, duration_days: n("duration_days"),
+      actual_cost: n("actual_cost"), status: $("f-status").value });
   }
   const q = task.id ? sb.from("tasks").update(row).eq("id", task.id).select().single()
                     : sb.from("tasks").insert({ ...row, goal_id: task.goal_id }).select().single();
@@ -265,6 +264,8 @@ $("detail").onclick = async (e) => {
     const { error } = await sb.from("task_feedback").insert({ task_id: task.id, author_name: me.full_name, body });
     if (error) return toast("አልተቻለም፦ " + error.message);
     $("fb-in").value = ""; extras();
+    if (CSS_CONFIG.emailNotify) sb.functions.invoke("send-feedback-email", { body: { task_id: task.id } })
+      .then(({ error: e2 }) => { if (e2) toast("ግብረ መልሱ ተልኳል፤ የኢሜል መላኩ ግን አልተሳካም።"); });
   }
 };
 
